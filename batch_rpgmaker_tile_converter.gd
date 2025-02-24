@@ -51,16 +51,7 @@ const TERRAIN_BITMASKS__TENKEY_WATERFALL = [
     [[        5,6,     ],[      4,5,6      ],[      4,5,       ],[        5        ],[                 ],[                 ]],
 ]
 
-const TERRAIN_BITMASKS_TENKEY_A4 = [
-    [[1,2,3,4,5,6,7,8,9],[  2,3,4,5,6,7,8,9],[1,2,  4,5,6,7,8,9],[  2,  4,5,6,7,8,9],[1,2,3,4,5,6,7,8, ],[  2,3,4,5,6,7,8, ]],
-    [[1,2,  4,5,6,7,8, ],[  2,  4,5,6,7,8, ],[1,2,3,4,5,6,  8,9],[  2,3,4,5,6,  8,9],[1,2,  4,5,6,  8,9],[  2,  4,5,6,  8,9]],
-    [[1,2,3,4,5,6,  8, ],[  2,3,4,5,6,  8, ],[1,2,  4,5,6,  8, ],[  2,  4,5,6,  8, ],[  2,3,  5,6,  8,9],[  2,    5,6,  8,9]],
-    [[  2,3,  5,6,  8, ],[  2,    5,6,  8, ],[      4,5,6,7,8,9],[      4,5,6,7,8, ],[      4,5,6,  8,9],[      4,5,6,  8, ]],
-    [[1,2,  4,5,  7,8, ],[1,2,  4,5,    8, ],[  2,  4,5,  7,8, ],[  2,  4,5,    8, ],[1,2,3,4,5,6,     ],[  2,3,4,5,6,     ]],
-    [[1,2,  4,5,6,     ],[  2,  4,5,6,     ],[  2,    5,    8  ],[      4,5,6      ],[        5,6,  8,9],[        5,6,  8  ]],
-    [[      4,5,  7,8, ],[      4,5,    8, ],[1,2,  4,5        ],[  2,  4,5        ],[  2,3,  5,6,     ],[  2,    5,6,     ]],
-    [[        5,    8  ],[      5,6        ],[  2,    5        ],[      4,5        ],[        5        ],[                 ]],
-    ## ↓はappend分と捉えることができそう
+const TERRAIN_BITMASKS_TENKEY_A4_APPEND = [
     [[        5,6,  8,9],[      4,5,6,7,8,9],[      4,5,  7,8  ],[        5,    8  ],[                 ],[                 ]],
     [[  2,3,  5,6,  8,9],[1,2,3,4,5,6,7,8,9],[1,2,  4,5,  7,8, ],[  2,    5,    8  ],[                 ],[                 ]],
     [[  2,3,  5,6,     ],[1,2,3,4,5,6,     ],[1,2,  4,5,       ],[  2,    5        ],[                 ],[                 ]],
@@ -164,7 +155,7 @@ func convert_a1() -> void:
         
         var tilesize:int = 48 if is_mv else 32
         var org_section_size:Vector2i = Vector2i(tilesize * 2, tilesize * 3)
-        var out_section_size:Vector2i = Vector2i(tilesize * 6, tilesize * 8)
+        var out_section_size:Vector2i = Vector2i(tilesize * TERRAIN_BITMASKS_TENKEY[0].size(), tilesize * TERRAIN_BITMASKS_TENKEY.size())
         
         # タイルセット作成
         var tileset:TileSet = TileSet.new()
@@ -175,7 +166,7 @@ func convert_a1() -> void:
         
         var tileset_src:TileSetAtlasSource = TileSetAtlasSource.new()
         # 一時的に透明ピクセルの画像をセットする（Atlas範囲外って言われるので）
-        tileset_src.texture = ImageTexture.create_from_image(Image.create(tilesize * 6 * 8, tilesize * 8 * 4,false, image.get_format()))
+        tileset_src.texture = ImageTexture.create_from_image(Image.create(out_section_size.x * 8, out_section_size.y * 4,false, image.get_format()))
         tileset.add_source(tileset_src)
         tileset_src.texture_region_size = Vector2i(tilesize, tilesize)
         
@@ -312,8 +303,8 @@ func convert_a1() -> void:
                 var is_yokuwakaran_tile:= (row == 0 and col == 3) or (row == 1 and col == 3)
                 
                 # タイルを作成する
-                for y in 8:
-                    for x in 6:
+                for y in TERRAIN_BITMASKS_TENKEY.size():
+                    for x in TERRAIN_BITMASKS_TENKEY[0].size():
                         if is_anime_empty_tile: continue
                         
                         #全部1マス
@@ -332,15 +323,15 @@ func convert_a1() -> void:
                             tileset_src.set_tile_animation_frame_duration(pos,1, ANIMATION_DURATION)
                             tileset_src.set_tile_animation_frame_duration(pos,2, ANIMATION_DURATION)
                         
-                        if (TERRAIN_BITMASKS_TENKEY_A4[y][x].has(1)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(2)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(3)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(4)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(5)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(6)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(7)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(8)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(9)
+                        if (TERRAIN_BITMASKS_TENKEY[y][x].has(1)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(2)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(3)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(4)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(5)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(6)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(7)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(8)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(9)
                         )\
                         :
                             tile_data.terrain_set = 0
@@ -398,7 +389,7 @@ func convert_a2() -> void:
         
         var tilesize:int = 48 if is_mv else 32
         var org_section_size:Vector2i = Vector2i(tilesize * 2, tilesize * 3)
-        var out_section_size:Vector2i = Vector2i(tilesize * 6, tilesize * 8)
+        var out_section_size:Vector2i = Vector2i(tilesize * TERRAIN_BITMASKS_TENKEY[0].size(), tilesize * TERRAIN_BITMASKS_TENKEY.size())
         
         # タイルセット作成
         var tileset:TileSet = TileSet.new()
@@ -409,7 +400,7 @@ func convert_a2() -> void:
         
         var tileset_src:TileSetAtlasSource = TileSetAtlasSource.new()
         # 一時的に透明ピクセルの画像をセットする（Atlas範囲外って言われるので）
-        tileset_src.texture = ImageTexture.create_from_image(Image.create(tilesize * 6 * 8, tilesize * 8 * 4,false, image.get_format()))
+        tileset_src.texture = ImageTexture.create_from_image(Image.create(out_section_size.x * 8, out_section_size.y * 4,false, image.get_format()))
         tileset.add_source(tileset_src)
         tileset_src.texture_region_size = Vector2i(tilesize, tilesize)
         
@@ -445,8 +436,8 @@ func convert_a2() -> void:
                 
                 
                 # タイルを作成する
-                for y in 8:
-                    for x in 6:
+                for y in TERRAIN_BITMASKS_TENKEY.size():
+                    for x in TERRAIN_BITMASKS_TENKEY[0].size():
                         #全部1マス
                         var pos:=Vector2i((out_section_size.x / tilesize) * col + x,(out_section_size.y / tilesize) * row + y)
                         #print(pos)
@@ -454,15 +445,15 @@ func convert_a2() -> void:
                         # 地形を塗る
                         var tile_data:TileData = tileset_src.get_tile_data(pos,0)
                         
-                        if (TERRAIN_BITMASKS_TENKEY_A4[y][x].has(1)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(2)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(3)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(4)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(5)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(6)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(7)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(8)\
-                        or TERRAIN_BITMASKS_TENKEY_A4[y][x].has(9)
+                        if (TERRAIN_BITMASKS_TENKEY[y][x].has(1)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(2)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(3)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(4)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(5)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(6)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(7)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(8)\
+                        or TERRAIN_BITMASKS_TENKEY[y][x].has(9)
                         )\
                         :
                             tile_data.terrain_set = 0
@@ -644,8 +635,9 @@ func convert_a4() -> void:
         var is_mv:bool = image.get_width() == 768
         
         var tilesize:int = 48 if is_mv else 32
+        var TERRAIN_BITMASKS_TENKEY_A4 = TERRAIN_BITMASKS_TENKEY + TERRAIN_BITMASKS_TENKEY_A4_APPEND
         var org_section_size:Vector2i = Vector2i(tilesize * 2, tilesize * 5)
-        var out_section_size:Vector2i = Vector2i(tilesize * 6, tilesize * 12)
+        var out_section_size:Vector2i = Vector2i(tilesize * TERRAIN_BITMASKS_TENKEY_A4[0].size(), tilesize * TERRAIN_BITMASKS_TENKEY_A4.size())
         #print(org_section_size)
         #print(out_section_size)
         
@@ -658,7 +650,7 @@ func convert_a4() -> void:
         
         var tileset_src:TileSetAtlasSource = TileSetAtlasSource.new()
         # 一時的に透明ピクセルの画像をセットする（Atlas範囲外って言われるので）
-        tileset_src.texture = ImageTexture.create_from_image(Image.create(tilesize * 6 * 8, tilesize * 12 * 3,false,image.get_format()))#TODO
+        tileset_src.texture = ImageTexture.create_from_image(Image.create(out_section_size.x * 8, out_section_size.y * 3,false,image.get_format()))#TODO
         tileset.add_source(tileset_src)
         tileset_src.texture_region_size = Vector2i(tilesize, tilesize)
         
@@ -711,10 +703,10 @@ func convert_a4() -> void:
                 
                 # タイルを作成する
                 var terrain_kabe:int= 0
-                for y in 12:
-                    if y == 8 and terrain_kabe == 0:
+                for y in TERRAIN_BITMASKS_TENKEY_A4.size():
+                    if y == TERRAIN_BITMASKS_TENKEY.size() and terrain_kabe == 0:
                         terrain_kabe = 1
-                    for x in 6:
+                    for x in TERRAIN_BITMASKS_TENKEY_A4[0].size():
                         #全部1マス
                         var pos:=Vector2i((out_section_size.x / tilesize) * col + x,(out_section_size.y / tilesize) * row + y)
                         #print(pos)
