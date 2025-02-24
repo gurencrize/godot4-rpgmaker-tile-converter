@@ -47,7 +47,7 @@ func convert_a1():
                 if (y == 2 or y == 3) and x == 3:
                     continue
                 var target_tile:Image = target_image.get_region(Rect2i(TILE_SIZE * 6 * x, TILE_SIZE * 8 * y, TILE_SIZE * 6, TILE_SIZE * 8))
-                convert_map_unit(imagefilename + "_{0}".format([output_counter]), target_tile)
+                convert_map_unit(imagefilename, "_{0}".format([output_counter]), target_tile)
                 output_counter += 1
 func convert_a2():
     var a2_image_paths:= get_target_autotile_image_file_paths("_A2")
@@ -59,7 +59,7 @@ func convert_a2():
         for y in range(4):
             for x in range(8):
                 var target_tile:Image = target_image.get_region(Rect2i(TILE_SIZE * 6 * x, TILE_SIZE * 8 * y, TILE_SIZE * 6, TILE_SIZE * 8))
-                convert_map_unit(imagefilename + "_{0}".format([output_counter]), target_tile)
+                convert_map_unit(imagefilename, "_{0}".format([output_counter]), target_tile)
                 output_counter += 1
 func convert_a3():
     # 未対応
@@ -74,23 +74,25 @@ func convert_a4():
         for y in range(3):
             for x in range(8):    
                 var target_tile:Image = target_image.get_region(Rect2i(TILE_SIZE * 6 * x, TILE_SIZE * (8 + 4) * y, TILE_SIZE * 6, TILE_SIZE * 8))
-                convert_map_unit(imagefilename + "_{0}".format([output_counter]), target_tile)
+                convert_map_unit(imagefilename, "_{0}".format([output_counter]), target_tile)
                 var target_wall:Image = target_image.get_region(Rect2i(TILE_SIZE * 6 * x, TILE_SIZE * (8 + 4) * y + TILE_SIZE * 8, TILE_SIZE * 4, TILE_SIZE * 4))
-                convert_map_wall(imagefilename + "_{0}_wall".format([output_counter]), target_wall)
+                convert_map_wall(imagefilename, "_{0}_wall".format([output_counter]), target_wall)
                 output_counter += 1
  
-func convert_map_unit(imagefilename:String, source:Image):
+func convert_map_unit(imagefilename:String, suffix:String, source:Image):
     var result:Image = Image.create_empty(TILE_SIZE * 12, TILE_SIZE * 4, false, source.get_format())
     for d in range(DEFAULT_INDEX.size()):
         var default_i = DEFAULT_INDEX[d]
         var changed_i = CHANGED_INDEX[d]
         result.blit_rect(source, Rect2i(TILE_SIZE * default_i[0], TILE_SIZE * default_i[1], TILE_SIZE, TILE_SIZE), Vector2i(TILE_SIZE * changed_i[0], TILE_SIZE * changed_i[1]))
-    result.save_png(OUTPUT_SPRITE_DIR.path_join(imagefilename + ".png"))
+    try_make_dir(imagefilename)
+    result.save_png(OUTPUT_SPRITE_DIR.path_join(imagefilename + "/" + imagefilename + suffix + ".png"))
 
-func convert_map_wall(imagefilename:String, source:Image):
+func convert_map_wall(imagefilename:String, suffix:String, source:Image):
     var result:Image = Image.create_empty(TILE_SIZE * 12, TILE_SIZE * 4, false, source.get_format())
     result.blit_rect(source, Rect2i(0, 0, TILE_SIZE * 4, TILE_SIZE * 4), Vector2i(0, 0))
-    result.save_png(OUTPUT_SPRITE_DIR.path_join(imagefilename + ".png"))
+    try_make_dir(imagefilename)
+    result.save_png(OUTPUT_SPRITE_DIR.path_join(imagefilename + "/" + imagefilename + suffix + ".png"))
 
 
 func get_target_autotile_image_file_paths(target_type:String) -> Array[String]:
@@ -101,3 +103,12 @@ func get_target_autotile_image_file_paths(target_type:String) -> Array[String]:
         and !(filename.ends_with(".import")):
             resary.append(TARGET_DIR.path_join(filename))
     return resary
+
+
+func try_make_dir(dir_name:String):
+    var diraccess = DirAccess.open(OUTPUT_SPRITE_DIR)
+    if diraccess.dir_exists(dir_name):
+        return
+    diraccess.make_dir(dir_name)
+    
+    
